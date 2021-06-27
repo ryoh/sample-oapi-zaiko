@@ -1,0 +1,252 @@
+openapi: 3.1.0
+info:
+  title: Warehouse
+  version: '1.0'
+  summary: 在庫情報管理API
+  description: 入出庫管理API（サンプル）
+  license:
+    name: MIT
+    identifier: MIT
+  contact:
+    name: ryoh
+    url: 'https://github.com/ryoh'
+    email: kawairyoh@gmail.com
+servers:
+  - url: 'http://localhost:3000/api/1.0'
+paths:
+  /items:
+    get:
+      summary: GET Items
+      responses:
+        '200':
+          $ref: '#/components/responses/getItemsResponse'
+        '404':
+          description: Not Found
+      operationId: getItems
+      description: 商品一覧取得
+      tags:
+        - item
+      parameters:
+        - $ref: '#/components/parameters/limit'
+    post:
+      summary: Create Items
+      operationId: postItems
+      responses:
+        '201':
+          description: Created
+        '409':
+          description: Conflict
+      description: 商品情報登録
+      tags:
+        - item
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/postItemRequest'
+        description: 新規登録する商品情報
+    parameters: []
+  '/items/{item_id}':
+    parameters:
+      - $ref: '#/components/parameters/item_id'
+    get:
+      summary: Get Item by ID
+      tags:
+        - item
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/item'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+      operationId: getItemByItemId
+      description: 商品詳細情報取得
+    patch:
+      summary: Update Item
+      operationId: patchItem
+      responses:
+        '200':
+          description: OK
+        '404':
+          description: Not Found
+      description: 商品情報の更新
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/patchItemRequest'
+        description: 更新する商品情報
+      tags:
+        - item
+    delete:
+      summary: Delete Item
+      operationId: deleteItem
+      responses:
+        '204':
+          description: No Content
+        '404':
+          description: Not Found
+      description: 商品情報の削除
+      tags:
+        - item
+components:
+  schemas:
+    item:
+      title: item
+      type: object
+      examples:
+        - id: 999999
+          code: ITM0001
+          name: Item name
+          summary: Item Summary
+          description: Item Description
+          created_date_time: '2020-01-31T23:59:59.000+09:00'
+          updated_date_time: '2020-01-31T23:59:59.000+09:00'
+      description: 商品情報
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+        code:
+          type: string
+          example: ITM0001
+          description: 商品名
+        name:
+          type: string
+          example: Item name
+          description: 商品名
+        summary:
+          type: string
+          description: 概要
+          example: Item Summary
+        description:
+          type: string
+          description: 詳細
+          example: Item Description
+        created_date_time:
+          $ref: '#/components/schemas/created_date_time'
+        updated_date_time:
+          $ref: '#/components/schemas/updated_date_time'
+      required:
+        - id
+        - code
+        - name
+      x-tags:
+        - item
+    id:
+      type: integer
+      title: id
+      description: プライマリキー
+      examples: []
+      format: int64
+      example: 999999
+      readOnly: true
+      x-go-type: uint64
+      x-tags:
+        - item
+    created_date_time:
+      type: string
+      title: created_date_time
+      description: 作成日時
+      examples: []
+      format: date-time
+      example: '2020-01-31T23:59:59.000+09:00'
+      readOnly: true
+      x-tags:
+        - item
+    updated_date_time:
+      type: string
+      title: updated_date_time
+      format: date-time
+      example: '2020-01-31T23:59:59.000+09:00'
+      description: 更新日時
+      readOnly: true
+      x-tags:
+        - item
+    postItemRequest:
+      title: postItemRequest
+      type: object
+      description: 商品新規登録時のリクエストデータ
+      x-tags:
+        - item
+      properties:
+        code:
+          type: string
+          description: 商品コード
+          example: ITM0001
+        name:
+          type: string
+          description: 商品名
+          example: Item Name
+        summary:
+          type: string
+          description: 概要
+          example: Item Summary
+        description:
+          type: string
+          description: 詳細
+          example: Item Description
+      required:
+        - code
+        - name
+      examples:
+        - code: ITM0001
+          name: Item Name
+          summary: Item Summary
+          description: Item Description
+    patchItemRequest:
+      title: patchItemRequest
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/id'
+        code:
+          type: string
+        name:
+          type: string
+        summary:
+          type: string
+        description:
+          type: string
+      required:
+        - id
+      description: 商品更新時のリクエストデータ
+      x-tags:
+        - item
+  responses:
+    getItemsResponse:
+      description: 検索結果の商品情報
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              '':
+                type: array
+                items:
+                  $ref: '#/components/schemas/item'
+  parameters:
+    item_id:
+      name: item_id
+      in: path
+      schema:
+        type: integer
+        format: int64
+        example: 999999
+      description: 商品ID
+      required: true
+    limit:
+      name: limit
+      in: query
+      schema:
+        type: integer
+      description: 表示上限値
+tags:
+  - name: item
